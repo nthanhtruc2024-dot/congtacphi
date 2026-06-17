@@ -1427,7 +1427,8 @@ function previewRpt(){
     document.getElementById('giayde-list').innerHTML = nvs.map(ten=>{
       const rows=data.filter(c=>c.ten===ten);
       const tt=rows.reduce((s,c)=>s+c.tong,0);
-      return renderGiayDe(ten,tt,tu,den,nam);
+      const donvi=rows[0]?.donvi||'';
+      return renderGiayDe(ten,tt,tu,den,nam,rows,donvi);
     }).join('<div style="margin:24px 0;border-top:2px dashed var(--gray-200)"></div>');
   } else {
     document.getElementById('card-preview-content').style.display='';
@@ -1454,9 +1455,19 @@ function previewRpt(){
   }
 }
 
-function renderGiayDe(ten, tt, tu, den, nam){
+function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
   const tuStr=String(tu).padStart(2,'0');
   const denStr=String(den).padStart(2,'0');
+  // Tính tổng tiền theo từng tháng
+  const thangMap={};
+  (rows||[]).forEach(c=>{
+    if(!thangMap[c.thang]) thangMap[c.thang]=0;
+    thangMap[c.thang]+=c.tong;
+  });
+  const thangList=Object.keys(thangMap).sort((a,b)=>a-b);
+  const soTienThang=thangList.map(m=>`tháng ${String(m).padStart(2,'0')} là ${Number(thangMap[m]).toLocaleString('vi-VN')}đ`).join(', ');
+  const noiDungTien = thangList.length>0 ? `(${soTienThang})` : `(Số tiền ${tt.toLocaleString('vi-VN')}đ)`;
+  const boPhan = donvi || 'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
   return `
   <div class="giayde-wrap" style="margin-bottom:0">
     <div class="giayde-header">
@@ -1471,8 +1482,8 @@ function renderGiayDe(ten, tt, tu, den, nam){
     <div class="giayde-date">Ngày &nbsp;&nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp;&nbsp; năm ${nam}</div>
     <div class="giayde-to">Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi</div>
     <div class="giayde-body"><strong>Họ và tên người đề nghị thanh toán:</strong> ${ten}</div>
-    <div class="giayde-body"><strong>Bộ phận (địa chỉ):</strong> Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi</div>
-    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> Công tác phí từ tháng ${tuStr} đến tháng ${denStr} (Số tiền ${tt.toLocaleString('vi-VN')}đ)</div>
+    <div class="giayde-body"><strong>Bộ phận (địa chỉ):</strong> ${boPhan}</div>
+    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> Công tác phí từ tháng ${tuStr} đến tháng ${denStr} ${noiDungTien}</div>
     <div class="giayde-body"><strong>Số tiền thanh toán:</strong> ${tt.toLocaleString('vi-VN')} đồng</div>
     <div class="giayde-body"><strong>Tổng số tiền bằng chữ:</strong> ${cap(toViChu(tt))} đồng.</div>
     <div class="giayde-body" style="font-style:italic">(Chứng từ đính kèm: giấy đi đường)</div>
@@ -1941,9 +1952,17 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
   const TABS_SIGN=[{val:'center',pos:1620},{val:'center',pos:4320},{val:'center',pos:6750},{val:'center',pos:9180}];
 
   const pages = nvs.map(ten=>{
-    const tt=dataAll.filter(c=>c.ten===ten).reduce((s,c)=>s+c.tong,0);
+    const rows=dataAll.filter(c=>c.ten===ten);
+    const tt=rows.reduce((s,c)=>s+c.tong,0);
+    const donvi=rows[0]?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
     const tu2=String(tu).padStart(2,'0'), den2=String(den).padStart(2,'0');
     const fmtMoney=n=>n.toLocaleString('vi-VN');
+    // Tổng tiền từng tháng
+    const thangMap={};
+    rows.forEach(c=>{ if(!thangMap[c.thang]) thangMap[c.thang]=0; thangMap[c.thang]+=c.tong; });
+    const thangList=Object.keys(thangMap).sort((a,b)=>a-b);
+    const soTienThang=thangList.map(m=>`tháng ${String(m).padStart(2,'0')} là ${fmtMoney(thangMap[m])}đ`).join(', ');
+    const noiDungTien=thangList.length>0?`(${soTienThang})`:`(Số tiền ${fmtMoney(tt)}đ)`;
     let paras='';
     // Header
     paras+=makePara([{text:'Đơn vị: Văn phòng HĐND và UBND',font:F,sz:28,bold:true}],{indent:540,lineSpacing:240});
@@ -1954,8 +1973,8 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
     paras+=makePara([],{lineSpacing:240,spaceBefore:200});
     paras+=makePara([{text:'Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi',font:F,sz:28}],{indent:540,spaceBefore:120});
     paras+=makePara([{text:`Họ và tên người đề nghị thanh toán: ${ten}`,font:F,sz:28}],{indent:540,spaceBefore:80});
-    paras+=makePara([{text:'Bộ phận (địa chỉ): Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi',font:F,sz:28}],{indent:540,spaceBefore:80});
-    paras+=makePara([{text:`Nội dung thanh toán: Công tác phí từ tháng ${tu2} đến tháng ${den2} (Số tiền ${fmtMoney(tt)}đ)`,font:F,sz:28}],{indent:540,spaceBefore:80});
+    paras+=makePara([{text:`Bộ phận (địa chỉ): ${donvi}`,font:F,sz:28}],{indent:540,spaceBefore:80});
+    paras+=makePara([{text:`Nội dung thanh toán: Công tác phí từ tháng ${tu2} đến tháng ${den2} ${noiDungTien}`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Số tiền thanh toán: ${fmtMoney(tt)} đồng`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Tổng số tiền bằng chữ: ${cap(toViChu(tt))} đồng.`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:'(Chứng từ đính kèm: giấy đi đường)',font:F,sz:28,italic:true}],{indent:540,spaceBefore:80,spaceAfter:100});
