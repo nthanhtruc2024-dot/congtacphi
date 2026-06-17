@@ -1467,7 +1467,8 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
   const thangList=Object.keys(thangMap).sort((a,b)=>a-b);
   const soTienThang=thangList.map(m=>`tháng ${String(m).padStart(2,'0')} là ${Number(thangMap[m]).toLocaleString('vi-VN')}đ`).join(', ');
   const noiDungTien = thangList.length>0 ? `(${soTienThang})` : `(Số tiền ${tt.toLocaleString('vi-VN')}đ)`;
-  const boPhan = donvi || 'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+  const boPhanRaw = donvi || 'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+  const boPhan = boPhanRaw === 'Trung Tâm PVHCC' ? 'Trung Tâm Phục vụ Hành chính công' : boPhanRaw;
   return `
   <div class="giayde-wrap" style="margin-bottom:0">
     <div class="giayde-header">
@@ -1483,7 +1484,7 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
     <div class="giayde-to">Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi</div>
     <div class="giayde-body"><strong>Họ và tên người đề nghị thanh toán:</strong> ${ten}</div>
     <div class="giayde-body"><strong>Bộ phận (địa chỉ):</strong> ${boPhan}</div>
-    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> Công tác phí từ tháng ${tuStr} đến tháng ${denStr} ${noiDungTien}</div>
+    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> ${tuStr===denStr ? `Công tác phí tháng ${tuStr}` : `Công tác phí từ tháng ${tuStr} đến tháng ${denStr} ${noiDungTien}`}</div>
     <div class="giayde-body"><strong>Số tiền thanh toán:</strong> ${tt.toLocaleString('vi-VN')} đồng</div>
     <div class="giayde-body"><strong>Tổng số tiền bằng chữ:</strong> ${cap(toViChu(tt))} đồng.</div>
     <div class="giayde-body" style="font-style:italic">(Chứng từ đính kèm: giấy đi đường)</div>
@@ -1496,7 +1497,7 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
       <div>
         <div class="role">Phòng chuyên môn</div>
         <div class="sign">(Ký, họ tên, đóng dấu)</div>
-        <div class="name">Lương Văn Nhất</div>
+        <div class="name">Dương Văn Luận</div>
       </div>
       <div>
         <div class="role">Phụ trách kế toán</div>
@@ -1954,7 +1955,8 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
   const pages = nvs.map(ten=>{
     const rows=dataAll.filter(c=>c.ten===ten);
     const tt=rows.reduce((s,c)=>s+c.tong,0);
-    const donvi=rows[0]?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+    const donviRaw=rows[0]?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+    const donvi=donviRaw==='Trung Tâm PVHCC'?'Trung Tâm Phục vụ Hành chính công':donviRaw;
     const tu2=String(tu).padStart(2,'0'), den2=String(den).padStart(2,'0');
     const fmtMoney=n=>n.toLocaleString('vi-VN');
     // Tổng tiền từng tháng
@@ -1974,7 +1976,7 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
     paras+=makePara([{text:'Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi',font:F,sz:28}],{indent:540,spaceBefore:120});
     paras+=makePara([{text:`Họ và tên người đề nghị thanh toán: ${ten}`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Bộ phận (địa chỉ): ${donvi}`,font:F,sz:28}],{indent:540,spaceBefore:80});
-    paras+=makePara([{text:`Nội dung thanh toán: Công tác phí từ tháng ${tu2} đến tháng ${den2} ${noiDungTien}`,font:F,sz:28}],{indent:540,spaceBefore:80});
+    paras+=makePara([{text:`Nội dung thanh toán: ${tu2===den2 ? `Công tác phí tháng ${tu2}` : `Công tác phí từ tháng ${tu2} đến tháng ${den2} ${noiDungTien}`}`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Số tiền thanh toán: ${fmtMoney(tt)} đồng`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Tổng số tiền bằng chữ: ${cap(toViChu(tt))} đồng.`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:'(Chứng từ đính kèm: giấy đi đường)',font:F,sz:28,italic:true}],{indent:540,spaceBefore:80,spaceAfter:100});
@@ -2008,7 +2010,7 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
       '\t',
       {text:ten,font:F,sz:28,bold:true},
       '\t',
-      {text:'Lương Văn Nhất',font:F,sz:27,bold:true},
+      {text:'Dương Văn Luận',font:F,sz:27,bold:true},
       '\t',
       {text:'Nguyễn Thành Lâm',font:F,sz:27,bold:true},
       '\t',
