@@ -482,6 +482,28 @@ tbody tr:hover td { background: var(--gray-50); }
 .report-type-title { font-size:14px; font-weight:600; color:var(--gray-700); margin-bottom:3px; }
 .report-type-desc { font-size:12px; color:var(--gray-500); }
 .report-type-item.selected .report-type-title { color:var(--blue); }
+.chung-nv-box{border:1.5px solid var(--gray-200);border-radius:10px;padding:14px;margin-top:6px;background:var(--gray-50);}
+.chung-nv-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;margin-top:8px;}
+.chung-nv-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid var(--gray-200);}
+.chung-nv-row input[type="checkbox"]{width:17px;height:17px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.chung-nv-row input[type="radio"]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.chung-nv-row .nv-name{font-weight:600;font-size:14px;color:var(--gray-800);}
+.chung-nv-row .nv-donvi{font-size:12px;color:var(--gray-500);margin-left:auto;}
+.chung-nv-row.disabled{opacity:.45;}
+.chung-nv-radio-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-500);white-space:nowrap;}
+.chung-nv-empty{font-size:13px;color:var(--gray-400);padding:8px 0;}
+.thang-chip-box{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.thang-chip{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;border:1.5px solid var(--gray-200);background:#fff;font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;user-select:none;transition:all .12s;}
+.thang-chip input{width:14px;height:14px;accent-color:var(--blue);cursor:pointer;}
+.thang-chip.checked{border-color:var(--blue);background:var(--blue-light);color:var(--blue-dark);}
+.chuyen-pick-box{border:1.5px solid var(--gray-200);border-radius:10px;padding:14px;margin-top:6px;background:var(--gray-50);}
+.chuyen-pick-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
+.chuyen-pick-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid var(--gray-200);font-size:13px;}
+.chuyen-pick-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.chuyen-pick-row .cp-thang{font-weight:700;color:var(--blue);flex-shrink:0;width:34px;}
+.chuyen-pick-row .cp-ten{font-weight:600;color:var(--gray-800);min-width:140px;}
+.chuyen-pick-row .cp-diem{color:var(--gray-500);flex:1;}
+.chuyen-pick-row .cp-tong{font-weight:700;color:var(--blue);flex-shrink:0;}
 
 /* ── MSG ─────────────────────────────────── */
 .msg { font-size:13px; margin-top:10px; min-height:20px; }
@@ -602,7 +624,7 @@ tbody tr:hover td { background: var(--gray-50); }
           <option value="">— Chọn điểm đến —</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" id="field-km-wrap">
         <label>Số km (tự động hoặc nhập tay)</label>
         <input type="number" id="inp-km" min="0" placeholder="0" oninput="calcResult()">
         <span class="hint">Đơn giá khoán: 4.000 đ/km</span>
@@ -633,22 +655,43 @@ tbody tr:hover td { background: var(--gray-50); }
     <div class="g2">
       <div class="field">
         <label>Khoảng cách từ cơ quan</label>
-        <div class="toggle-group">
+        <div class="toggle-group" id="kc-group">
           <label class="toggle-item active" id="lbl-kc1">
-            <input type="radio" name="khoangcach" value="10_50" checked onchange="calcResult()">
-            10–50 km · 150k/ngày
+            <input type="radio" name="khoangcach" value="10_40" checked onchange="calcResult()">
+            <span id="kc1-label">10–&lt;50 km · 150k/ngày</span>
           </label>
           <label class="toggle-item" id="lbl-kc2">
-            <input type="radio" name="khoangcach" value="tren50" onchange="calcResult()">
-            ≥50 km · 200k/ngày
+            <input type="radio" name="khoangcach" value="40_70" onchange="calcResult()">
+            <span id="kc2-label">≥50 km · 200k/ngày</span>
+          </label>
+          <label class="toggle-item" id="lbl-kc3" style="display:none">
+            <input type="radio" name="khoangcach" value="tren70" onchange="calcResult()">
+            <span id="kc3-label">≥70 km · 200k</span>
           </label>
         </div>
       </div>
+      <div class="field">
+        <label>Tùy chọn đặc biệt</label>
+        <div class="toggle-group">
+          <label class="toggle-item" id="lbl-xecong">
+            <input type="checkbox" id="chk-xecong" onchange="toggleXeCong()">
+            <i class="ti ti-car"></i> Đi xe công
+          </label>
+          <label class="toggle-item" id="lbl-choai">
+            <input type="checkbox" id="chk-choai" onchange="calcResult()">
+            <i class="ti ti-building"></i> Được bố trí chỗ nghỉ
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
       <div class="field">
         <label>Ghi chú</label>
         <input type="text" id="inp-ghichu" placeholder="VD: Tham dự tập huấn, hội nghị...">
       </div>
     </div>
+
   </div>
 
   <!-- NGOÀI TỈNH -->
@@ -883,7 +926,7 @@ tbody tr:hover td { background: var(--gray-50); }
     <div class="g3">
       <div class="field">
         <label>Từ tháng</label>
-        <select id="rpt-tu">
+        <select id="rpt-tu" onchange="onRptKyChange()">
           <option value="1">Tháng 01</option><option value="2">Tháng 02</option>
           <option value="3">Tháng 03</option><option value="4">Tháng 04</option>
           <option value="5">Tháng 05</option><option value="6" selected>Tháng 06</option>
@@ -894,7 +937,7 @@ tbody tr:hover td { background: var(--gray-50); }
       </div>
       <div class="field">
         <label>Đến tháng</label>
-        <select id="rpt-den">
+        <select id="rpt-den" onchange="onRptKyChange()">
           <option value="1">Tháng 01</option><option value="2">Tháng 02</option>
           <option value="3">Tháng 03</option><option value="4">Tháng 04</option>
           <option value="5">Tháng 05</option><option value="6" selected>Tháng 06</option>
@@ -905,7 +948,7 @@ tbody tr:hover td { background: var(--gray-50); }
       </div>
       <div class="field">
         <label>Năm</label>
-        <input type="number" id="rpt-nam" value="2026" min="2024" max="2030">
+        <input type="number" id="rpt-nam" value="2026" min="2024" max="2030" oninput="onRptKyChange()">
       </div>
     </div>
 
@@ -923,6 +966,38 @@ tbody tr:hover td { background: var(--gray-50); }
             <div class="report-type-title"><i class="ti ti-file-text"></i> Giấy đề nghị thanh toán</div>
             <div class="report-type-desc">Tạo giấy đề nghị riêng từng người — Xuất Word (.docx)</div>
           </label>
+          <label class="report-type-item">
+            <input type="radio" name="rpt-loai" value="giaydechung" onchange="updateRptSelect(this)">
+            <div class="report-type-title"><i class="ti ti-files"></i> Giấy đề nghị thanh toán chung</div>
+            <div class="report-type-desc">Cộng chung nhiều người vào 1 giấy đề nghị — Xuất Word (.docx)</div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="g1">
+      <div class="field">
+        <label>Chọn tháng cụ thể trong kỳ trên (bỏ tick để loại trừ tháng không cần)</label>
+        <div id="rpt-thang-chip-box" class="thang-chip-box"></div>
+      </div>
+    </div>
+
+    <div class="g1">
+      <div class="field">
+        <label>Chọn chuyến công tác cụ thể để xuất (bỏ tick để loại trừ chuyến không cần)</label>
+        <div class="chuyen-pick-box">
+          <div id="rpt-chuyen-list" class="chuyen-pick-list"></div>
+          <div id="rpt-chuyen-empty" class="chung-nv-empty" style="display:none">Không có chuyến công tác nào trong kỳ đã chọn.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g1" id="chung-nv-wrap" style="display:none">
+      <div class="field">
+        <label>Chọn nhân viên cộng chung vào giấy đề nghị (theo thứ tự tick) &nbsp;|&nbsp; chọn người đứng tên "Người đề nghị thanh toán"</label>
+        <div class="chung-nv-box">
+          <div id="chung-nv-list" class="chung-nv-list"></div>
+          <div id="chung-nv-empty" class="chung-nv-empty" style="display:none">Không có nhân viên nào có dữ liệu trong kỳ đã chọn ở trên. Vui lòng chọn lại Từ tháng / Đến tháng / Năm.</div>
         </div>
       </div>
     </div>
@@ -948,6 +1023,14 @@ tbody tr:hover td { background: var(--gray-50); }
     <div id="giayde-list"></div>
   </div>
 
+  <!-- Preview giấy đề nghị chung -->
+  <div id="card-giaydechung-preview" style="display:none">
+    <div style="margin-bottom:12px;font-size:13px;color:var(--gray-500)">
+      <i class="ti ti-info-circle"></i> Xem trước Giấy đề nghị thanh toán chung
+    </div>
+    <div id="giaydechung-content"></div>
+  </div>
+
 </div><!-- /panel-baocao -->
 
 </div><!-- /app -->
@@ -957,6 +1040,10 @@ tbody tr:hover td { background: var(--gray-50); }
 <script>
 /* ─── DATA ─────────────────────────────────────────── */
 let dsChuyen = [];
+let chungNvSelected = []; // mảng tên nhân viên đã tick, theo đúng thứ tự tick
+let chungNvNguoiDungTen = null; // tên người đứng tên "Người đề nghị thanh toán" trong giấy chung
+let rptThangSelected = []; // mảng số tháng (trong khoảng Từ tháng-Đến tháng) đang được tick chọn
+let rptChuyenExcluded = new Set(); // tập id các chuyến công tác bị BỎ TICK (loại trừ khỏi xuất báo cáo)
 let dsNhanSu = [
   {ten:"Nguyễn Trường Giang",donvi:"Hội đồng nhân dân",cccd:"",stk:"7607797987979",nh:"NHNN&PTNT Thạnh Trị",ghichu:""},
   {ten:"Huỳnh Việt Khanh",donvi:"Hội đồng nhân dân",cccd:"",stk:"7607215019354",nh:"NHNN&PTNT Thạnh Trị",ghichu:""},
@@ -1064,6 +1151,7 @@ function showTab(id, btn){
   if(id==='danhsach') renderList();
   if(id==='nhansu') renderNS();
   if(id==='diem') renderDiem();
+  if(id==='baocao'){ renderRptThangChips(); renderRptChuyenList(); }
 }
 
 /* ─── TOGGLE GROUP HELPERS ─────────────────────────────────────────── */
@@ -1092,6 +1180,17 @@ function toggleSongay(){
   f.style.pointerEvents = tgian==='ngay'?'auto':'none';
 }
 
+function toggleXeCong(){
+  const xeCong = document.getElementById('chk-xecong').checked;
+  const lbl = document.getElementById('lbl-xecong');
+  lbl.classList.toggle('active', xeCong);
+  // Ẩn/mờ ô km khi đi xe công (không còn ý nghĩa)
+  const fKm = document.getElementById('field-km-wrap');
+  fKm.style.opacity = xeCong ? '0.35' : '1';
+  fKm.style.pointerEvents = xeCong ? 'none' : 'auto';
+  calcResult();
+}
+
 function calcKm(){
   const sel = document.getElementById('inp-diem').value;
   if(sel && sel!=='khac:0'){
@@ -1100,7 +1199,16 @@ function calcKm(){
     document.getElementById('inp-km').value='';
   }
   const km = parseInt(document.getElementById('inp-km').value)||0;
-  const r = km>=50?'tren50':'10_50';
+  const tgian = document.querySelector('input[name="tgian"]:checked')?.value||'buoi';
+  let r;
+  if(tgian==='buoi'){
+    if(km>=70) r='tren70';
+    else if(km>=40) r='40_70';
+    else r='10_40';
+  } else {
+    // Chế độ ngày: 2 mức (< 50km = 10_40, >= 50km = 40_70)
+    r = km>=50 ? '40_70' : '10_40';
+  }
   document.querySelector(`input[name="khoangcach"][value="${r}"]`).checked=true;
   syncToggle('khoangcach');
   calcResult();
@@ -1109,19 +1217,62 @@ function calcKm(){
 function calcResult(){
   const loai = document.querySelector('input[name="loai"]:checked').value;
   let tienVe=0,tienPT=0,tienLuuTru=0,tienPhong=0,notes=[];
+  const xeCong = document.getElementById('chk-xecong')?.checked || false;
+  const coChoNghi = document.getElementById('chk-choai')?.checked || false;
+  // Cập nhật trạng thái active cho checkbox toggle-item
+  document.getElementById('lbl-xecong')?.classList.toggle('active', xeCong);
+  document.getElementById('lbl-choai')?.classList.toggle('active', coChoNghi);
 
   if(loai==='trong'){
     const km = parseInt(document.getElementById('inp-km').value)||0;
     const tgian = document.querySelector('input[name="tgian"]:checked')?.value||'buoi';
     const songay = parseInt(document.getElementById('inp-songay').value)||1;
-    const kc = document.querySelector('input[name="khoangcach"]:checked')?.value||'10_50';
-    if(km>0){tienPT=km*4000;notes.push(`Khoán phương tiện: ${km} km × 4.000đ = ${fmt(tienPT)}`);}
-    if(tgian==='ngay'&&songay>=1){
-      const muc=kc==='tren50'?200000:150000;
+    const kc = document.querySelector('input[name="khoangcach"]:checked')?.value||'10_40';
+
+    // Cập nhật nhãn toggle khoảng cách theo chế độ thời gian
+    const kc1Lbl = document.getElementById('kc1-label');
+    const kc2Lbl = document.getElementById('kc2-label');
+    const kc3Lbl = document.getElementById('kc3-label');
+    const lblKc3 = document.getElementById('lbl-kc3');
+    if(tgian==='buoi'){
+      if(kc1Lbl) kc1Lbl.textContent='10–<40 km · 100k';
+      if(kc2Lbl) kc2Lbl.textContent='40–<70 km · 150k';
+      if(kc3Lbl) kc3Lbl.textContent='≥70 km · 200k';
+      if(lblKc3) lblKc3.style.display='';
+    } else {
+      if(kc1Lbl) kc1Lbl.textContent='10–<50 km · 150k/ngày';
+      if(kc2Lbl) kc2Lbl.textContent='≥50 km · 200k/ngày';
+      if(kc3Lbl) kc3Lbl.textContent='≥70 km · 200k';
+      if(lblKc3) lblKc3.style.display='none';
+      // Nếu đang chọn tren70 mà chuyển sang ngay, tự động map về 40_70 (tương đương tren50)
+      if(kc==='tren70'){
+        document.querySelector('input[name="khoangcach"][value="40_70"]').checked=true;
+        syncToggle('khoangcach');
+      }
+    }
+
+    if(km>0 && !xeCong){tienPT=km*4000;notes.push(`Khoán phương tiện: ${km} km × 4.000đ = ${fmt(tienPT)}`);}
+    if(xeCong) notes.push('Đi xe công — không tính khoán phương tiện');
+    if(tgian==='buoi'){
+      // Phụ cấp lưu trú 1 buổi theo khoảng cách km
+      if(km>=10){
+        let mucBuoi=0;
+        if(km>=70) mucBuoi=200000;
+        else if(km>=40) mucBuoi=150000;
+        else mucBuoi=100000;
+        tienLuuTru=mucBuoi;
+        notes.push(`Phụ cấp lưu trú (1 buổi): ${fmt(mucBuoi)}`);
+      } else {
+        notes.push('1 buổi — không đủ điều kiện tính phụ cấp lưu trú (cần ≥ 10 km)');
+      }
+    } else if(tgian==='ngay'&&songay>=1){
+      const kcNgay = document.querySelector('input[name="khoangcach"]:checked')?.value||'10_40';
+      const muc=(kcNgay==='tren70'||kcNgay==='40_70')?200000:150000;
       tienLuuTru=muc*songay;
       notes.push(`Phụ cấp lưu trú: ${songay} ngày × ${fmt(muc)} = ${fmt(tienLuuTru)}`);
-      if(songay>=2){tienPhong=400000*(songay-1);notes.push(`Tiền phòng (khoán): ${songay-1} đêm × 400.000đ = ${fmt(tienPhong)}`);}
-    } else notes.push('1 buổi — không tính phụ cấp lưu trú');
+      if(songay>=2 && !coChoNghi){tienPhong=400000*(songay-1);notes.push(`Tiền phòng (khoán): ${songay-1} đêm × 400.000đ = ${fmt(tienPhong)}`);}
+      if(coChoNghi && songay>=2) notes.push('Được bố trí chỗ nghỉ — không tính tiền thuê phòng');
+    }
   } else {
     tienVe=parseInt(document.getElementById('inp-tienve').value)||0;
     const tgian2=document.querySelector('input[name="tgian2"]:checked')?.value||'buoi';
@@ -1153,7 +1304,7 @@ function calcResult(){
   const box=document.getElementById('result-box');
   const ib=document.getElementById('info-note');
 
-  if(tong===0&&notes.every(n=>n.includes('buổi'))){
+  if(tong===0&&notes.every(n=>n.includes('buổi')||n.includes('không đủ')||n.includes('xe công'))){
     box.innerHTML='<div class="result-empty">Điền thông tin bên trên để tính toán tự động</div>';
     ib.style.display='none'; window._currentCalc=null; return;
   }
@@ -1204,6 +1355,13 @@ function resetForm(){
     const el=document.getElementById(id);
     if(el) el.value=el.type==='number'&&id!=='inp-songay'&&id!=='inp-songay2'?'0':id==='inp-songay'||id==='inp-songay2'?'1':'';
   });
+  // Reset 2 checkbox tùy chọn đặc biệt
+  const chkXe=document.getElementById('chk-xecong');
+  const chkCho=document.getElementById('chk-choai');
+  if(chkXe){ chkXe.checked=false; document.getElementById('lbl-xecong')?.classList.remove('active'); }
+  if(chkCho){ chkCho.checked=false; document.getElementById('lbl-choai')?.classList.remove('active'); }
+  const fKm=document.getElementById('field-km-wrap');
+  if(fKm){ fKm.style.opacity='1'; fKm.style.pointerEvents='auto'; }
   document.getElementById('result-box').innerHTML='<div class="result-empty">Điền thông tin bên trên để tính toán tự động</div>';
   document.getElementById('info-note').style.display='none';
   window._currentCalc=null;
@@ -1400,9 +1558,161 @@ function updateRptSelect(el){
   document.querySelectorAll('.report-type-item').forEach(item=>item.classList.remove('selected'));
   el.closest('.report-type-item').classList.add('selected');
   const btn=document.querySelector('button[onclick="xuatBaoCao()"]');
-  if(btn) btn.innerHTML=el.value==='giayde'
+  if(btn) btn.innerHTML=(el.value==='giayde'||el.value==='giaydechung')
     ?'<i class="ti ti-download"></i> Xuất Word (.docx)'
     :'<i class="ti ti-download"></i> Xuất Excel';
+  const chungWrap=document.getElementById('chung-nv-wrap');
+  if(el.value==='giaydechung'){
+    chungWrap.style.display='';
+    renderChungNvList();
+  } else {
+    chungWrap.style.display='none';
+  }
+}
+
+// Gọi khi đổi Từ tháng / Đến tháng / Năm: reset lại chip tháng + danh sách chuyến về mặc định (tick hết)
+function onRptKyChange(){
+  rptThangSelected=[];
+  rptChuyenExcluded=new Set();
+  renderRptThangChips();
+  renderRptChuyenList();
+}
+
+function renderRptThangChips(){
+  const tu=parseInt(document.getElementById('rpt-tu').value);
+  const den=parseInt(document.getElementById('rpt-den').value);
+  const box=document.getElementById('rpt-thang-chip-box');
+  if(!box) return;
+  const allMonths=[];
+  for(let m=tu;m<=den;m++) allMonths.push(m);
+  // Nếu chưa có lựa chọn nào (mặc định) -> tick hết các tháng trong khoảng
+  if(rptThangSelected.length===0) rptThangSelected=[...allMonths];
+  // Loại các tháng không còn thuộc khoảng hiện tại
+  rptThangSelected=rptThangSelected.filter(m=>allMonths.includes(m));
+  box.innerHTML=allMonths.map(m=>{
+    const checked=rptThangSelected.includes(m);
+    return `<label class="thang-chip ${checked?'checked':''}">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleRptThang(${m}, this.checked)">
+      Tháng ${String(m).padStart(2,'0')}
+    </label>`;
+  }).join('');
+}
+
+function toggleRptThang(m, checked){
+  if(checked){
+    if(!rptThangSelected.includes(m)) rptThangSelected.push(m);
+  } else {
+    rptThangSelected=rptThangSelected.filter(x=>x!==m);
+  }
+  renderRptThangChips();
+  renderRptChuyenList();
+}
+
+// Trả về dữ liệu đã lọc theo: khoảng Từ-Đến tháng sơ bộ + Năm + các tháng được tick trong chip + các chuyến không bị loại trừ
+function getFilteredData(){
+  const tu=parseInt(document.getElementById('rpt-tu').value);
+  const den=parseInt(document.getElementById('rpt-den').value);
+  const nam=parseInt(document.getElementById('rpt-nam').value);
+  const thangOk = rptThangSelected.length>0 ? rptThangSelected : (()=>{const a=[];for(let m=tu;m<=den;m++)a.push(m);return a;})();
+  return dsChuyen.filter(c=>c.nam===nam && c.thang>=tu && c.thang<=den && thangOk.includes(c.thang) && !rptChuyenExcluded.has(c.id));
+}
+
+function renderRptChuyenList(){
+  const tu=parseInt(document.getElementById('rpt-tu').value);
+  const den=parseInt(document.getElementById('rpt-den').value);
+  const nam=parseInt(document.getElementById('rpt-nam').value);
+  const thangOk = rptThangSelected.length>0 ? rptThangSelected : (()=>{const a=[];for(let m=tu;m<=den;m++)a.push(m);return a;})();
+  const data=dsChuyen.filter(c=>c.nam===nam && c.thang>=tu && c.thang<=den && thangOk.includes(c.thang))
+    .sort((a,b)=> a.thang-b.thang || String(a.ten).localeCompare(String(b.ten)));
+
+  const list=document.getElementById('rpt-chuyen-list');
+  const empty=document.getElementById('rpt-chuyen-empty');
+  if(!list) return;
+  if(data.length===0){
+    list.innerHTML='';
+    empty.style.display='';
+    if(document.getElementById('chung-nv-wrap').style.display!=='none') renderChungNvList();
+    return;
+  }
+  empty.style.display='none';
+  list.innerHTML=data.map(c=>{
+    const checked=!rptChuyenExcluded.has(c.id);
+    return `<label class="chuyen-pick-row">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleRptChuyen(${c.id}, this.checked)">
+      <span class="cp-thang">T${String(c.thang).padStart(2,'0')}</span>
+      <span class="cp-ten">${c.ten}</span>
+      <span class="cp-diem">${c.diadiem||''}</span>
+      <span class="cp-tong">${fmt(c.tong)}</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleRptChuyen(id, checked){
+  if(checked) rptChuyenExcluded.delete(id);
+  else rptChuyenExcluded.add(id);
+  if(document.getElementById('chung-nv-wrap').style.display!=='none') renderChungNvList();
+}
+
+function tinhTongTheoNhanVien(ten, tu, den, nam){
+  const rows=getFilteredData().filter(c=>c.ten===ten);
+  return rows.reduce((s,c)=>s+c.tong,0);
+}
+
+function renderChungNvList(){
+  const tu=parseInt(document.getElementById('rpt-tu').value);
+  const den=parseInt(document.getElementById('rpt-den').value);
+  const nam=parseInt(document.getElementById('rpt-nam').value);
+  // Danh sách nhân viên có dữ liệu trong kỳ đã chọn (sau khi áp dụng lọc tháng + chuyến cụ thể)
+  const tenCoDuLieu=[...new Set(getFilteredData().map(c=>c.ten))];
+  // Loại bỏ khỏi chungNvSelected những tên không còn dữ liệu trong kỳ mới
+  chungNvSelected=chungNvSelected.filter(t=>tenCoDuLieu.includes(t));
+  if(chungNvNguoiDungTen && !chungNvSelected.includes(chungNvNguoiDungTen)) chungNvNguoiDungTen=null;
+
+  const list=document.getElementById('chung-nv-list');
+  const empty=document.getElementById('chung-nv-empty');
+  if(tenCoDuLieu.length===0){
+    list.innerHTML='';
+    empty.style.display='';
+    return;
+  }
+  empty.style.display='none';
+
+  // Sắp theo dsNhanSu để hiển thị ổn định, kèm đơn vị
+  const infoMap={};
+  dsNhanSu.forEach(n=>{ infoMap[n.ten]=n.donvi||''; });
+  dsChuyen.forEach(c=>{ if(!infoMap[c.ten]) infoMap[c.ten]=c.donvi||''; });
+
+  list.innerHTML=tenCoDuLieu.map(ten=>{
+    const checked=chungNvSelected.includes(ten);
+    const donvi=infoMap[ten]||'';
+    const radioChecked=chungNvNguoiDungTen===ten?'checked':'';
+    const radioDisabled=checked?'':'disabled';
+    return `
+    <div class="chung-nv-row ${checked?'':''}">
+      <input type="checkbox" data-ten="${ten.replace(/"/g,'&quot;')}" ${checked?'checked':''} onchange="toggleChungNv('${ten.replace(/'/g,"\\'")}', this.checked)">
+      <span class="nv-name">${ten}</span>
+      <span class="nv-donvi">${donvi}</span>
+      <label class="chung-nv-radio-label">
+        <input type="radio" name="chung-nv-dungten" ${radioChecked} ${radioDisabled} onchange="setChungNvDungTen('${ten.replace(/'/g,"\\'")}')">
+        Đứng tên đề nghị
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function toggleChungNv(ten, checked){
+  if(checked){
+    if(!chungNvSelected.includes(ten)) chungNvSelected.push(ten);
+  } else {
+    chungNvSelected=chungNvSelected.filter(t=>t!==ten);
+    if(chungNvNguoiDungTen===ten) chungNvNguoiDungTen=null;
+  }
+  renderChungNvList();
+}
+
+function setChungNvDungTen(ten){
+  chungNvNguoiDungTen=ten;
+  renderChungNvList();
 }
 
 function previewRpt(){
@@ -1410,10 +1720,30 @@ function previewRpt(){
   const den=parseInt(document.getElementById('rpt-den').value);
   const nam=parseInt(document.getElementById('rpt-nam').value);
   const loai=document.querySelector('input[name="rpt-loai"]:checked').value;
-  const data=dsChuyen.filter(c=>c.thang>=tu&&c.thang<=den&&c.nam===nam);
+  const data=getFilteredData();
 
   document.getElementById('card-preview-content').style.display='none';
   document.getElementById('card-giayde-preview').style.display='none';
+  document.getElementById('card-giaydechung-preview').style.display='none';
+
+  if(loai==='giaydechung'){
+    if(chungNvSelected.length===0){
+      document.getElementById('rpt-msg').innerHTML='<span class="msg-err">Vui lòng chọn ít nhất 1 nhân viên để cộng chung vào giấy đề nghị.</span>';
+      return;
+    }
+    if(!chungNvNguoiDungTen){
+      document.getElementById('rpt-msg').innerHTML='<span class="msg-err">Vui lòng chọn người đứng tên "Người đề nghị thanh toán".</span>';
+      return;
+    }
+    document.getElementById('rpt-msg').innerHTML='';
+    const danhSach=chungNvSelected.map(ten=>{
+      const rows=data.filter(c=>c.ten===ten);
+      return {ten, tt:rows.reduce((s,c)=>s+c.tong,0), donvi:rows[0]?.donvi||''};
+    });
+    document.getElementById('card-giaydechung-preview').style.display='';
+    document.getElementById('giaydechung-content').innerHTML=renderGiayDeChung(danhSach, chungNvNguoiDungTen, tu, den, nam);
+    return;
+  }
 
   if(data.length===0){
     document.getElementById('rpt-msg').innerHTML='<span class="msg-err">Không có dữ liệu trong kỳ được chọn.</span>';
@@ -1455,6 +1785,86 @@ function previewRpt(){
   }
 }
 
+function getNguoiKyPhongCM(boPhanRaw, ten){
+  if(boPhanRaw === 'Trung Tâm PVHCC'){
+    return ten === 'Dương Văn Luận' ? 'Huỳnh Văn Thương' : 'Dương Văn Luận';
+  }
+  if(ten === 'Huỳnh Việt Khanh') return 'Sơn Giỏi';
+  if(ten === 'Nguyễn Thành Lâm' || ten === 'Nguyễn Trường Giang') return 'Kiều Thanh Trung';
+  return 'Lương Văn Nhất';
+}
+
+function tenChuCuoi(ten){
+  const parts=String(ten||'').trim().split(/\s+/);
+  return parts.length?parts[parts.length-1]:ten;
+}
+
+function getNguoiKyPhongCMChung(danhSach){
+  // danhSach: [{ten, donvi}], xét theo toàn bộ nhóm cộng chung
+  const coLuan = danhSach.some(x=>x.ten==='Dương Văn Luận' && x.donvi==='Trung Tâm PVHCC');
+  if(coLuan) return 'Huỳnh Văn Thương';
+  // Nếu cả nhóm đều thuộc Trung Tâm PVHCC (không có Luận) -> Dương Văn Luận
+  const tatCaPVHCC = danhSach.length>0 && danhSach.every(x=>x.donvi==='Trung Tâm PVHCC');
+  if(tatCaPVHCC) return 'Dương Văn Luận';
+  if(danhSach.some(x=>x.ten==='Huỳnh Việt Khanh')) return 'Sơn Giỏi';
+  if(danhSach.some(x=>x.ten==='Nguyễn Thành Lâm' || x.ten==='Nguyễn Trường Giang')) return 'Kiều Thanh Trung';
+  return 'Lương Văn Nhất';
+}
+
+function renderGiayDeChung(danhSach, nguoiDungTen, tu, den, nam){
+  // danhSach: [{ten, tt, donvi}], theo đúng thứ tự đã tick
+  const tuStr=String(tu).padStart(2,'0');
+  const denStr=String(den).padStart(2,'0');
+  const tongTien=danhSach.reduce((s,x)=>s+x.tt,0);
+  const noiDungChiTiet=danhSach.map(x=>`đ/c ${tenChuCuoi(x.ten)} là ${x.tt.toLocaleString('vi-VN')}đ`).join(', ');
+  const dungTenInfo=danhSach.find(x=>x.ten===nguoiDungTen)||danhSach[0];
+  const boPhanRaw=dungTenInfo?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+  const boPhan=boPhanRaw==='Trung Tâm PVHCC'?'Trung tâm Phục vụ Hành chính công':boPhanRaw;
+  const nguoiKyPhongCM=getNguoiKyPhongCMChung(danhSach);
+  return `
+  <div class="giayde-wrap" style="margin-bottom:0">
+    <div class="giayde-header">
+      <div>
+        <div><strong>Đơn vị: Văn phòng HĐND và UBND</strong></div>
+        <div>Mã QHNS: 1158035</div>
+        <div>Phòng:</div>
+      </div>
+      <div style="text-align:right;font-size:13px;color:#555"></div>
+    </div>
+    <div class="giayde-title">Giấy đề nghị thanh toán</div>
+    <div class="giayde-date">Ngày &nbsp;&nbsp;&nbsp;&nbsp; tháng &nbsp;&nbsp;&nbsp;&nbsp; năm ${nam}</div>
+    <div class="giayde-to">Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi</div>
+    <div class="giayde-body"><strong>Họ và tên người đề nghị thanh toán:</strong> ${nguoiDungTen}</div>
+    <div class="giayde-body"><strong>Bộ phận (địa chỉ):</strong> ${boPhan}</div>
+    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> Công tác phí từ tháng ${tuStr} đến tháng ${denStr} (${noiDungChiTiet})</div>
+    <div class="giayde-body"><strong>Số tiền thanh toán:</strong> ${tongTien.toLocaleString('vi-VN')} đồng</div>
+    <div class="giayde-body"><strong>Tổng số tiền bằng chữ:</strong> ${cap(toViChu(tongTien))} đồng.</div>
+    <div class="giayde-body" style="font-style:italic">(Chứng từ đính kèm: giấy đi đường)</div>
+    <div class="giayde-footer">
+      <div>
+        <div class="role">Người đề nghị<br>thanh toán</div>
+        <div class="sign">(Ký, họ tên)</div>
+        <div class="name">${nguoiDungTen}</div>
+      </div>
+      <div>
+        <div class="role">Phòng chuyên môn</div>
+        <div class="sign">(Ký, họ tên, đóng dấu)</div>
+        <div class="name">${nguoiKyPhongCM}</div>
+      </div>
+      <div>
+        <div class="role">Phụ trách kế toán</div>
+        <div class="sign">(Ký, họ tên)</div>
+        <div class="name">Nguyễn Thành Lâm</div>
+      </div>
+      <div>
+        <div class="role">Chánh văn phòng</div>
+        <div class="sign">(Ký, họ tên, đóng dấu)</div>
+        <div class="name">Dương Bửu Duy</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
   const tuStr=String(tu).padStart(2,'0');
   const denStr=String(den).padStart(2,'0');
@@ -1468,7 +1878,8 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
   const soTienThang=thangList.map(m=>`tháng ${String(m).padStart(2,'0')} là ${Number(thangMap[m]).toLocaleString('vi-VN')}đ`).join(', ');
   const noiDungTien = thangList.length>0 ? `(${soTienThang})` : `(Số tiền ${tt.toLocaleString('vi-VN')}đ)`;
   const boPhanRaw = donvi || 'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
-  const boPhan = boPhanRaw === 'Trung Tâm PVHCC' ? 'Trung Tâm Phục vụ Hành chính công' : boPhanRaw;
+  const boPhan = boPhanRaw === 'Trung Tâm PVHCC' ? 'Trung tâm Phục vụ Hành chính công' : boPhanRaw;
+  const nguoiKyPhongCM = getNguoiKyPhongCM(boPhanRaw, ten);
   return `
   <div class="giayde-wrap" style="margin-bottom:0">
     <div class="giayde-header">
@@ -1484,7 +1895,7 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
     <div class="giayde-to">Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi</div>
     <div class="giayde-body"><strong>Họ và tên người đề nghị thanh toán:</strong> ${ten}</div>
     <div class="giayde-body"><strong>Bộ phận (địa chỉ):</strong> ${boPhan}</div>
-    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> ${tuStr===denStr ? `Công tác phí tháng ${tuStr}` : `Công tác phí từ tháng ${tuStr} đến tháng ${denStr} ${noiDungTien}`}</div>
+    <div class="giayde-body"><strong>Nội dung thanh toán:</strong> ${thangList.length===1 ? `Công tác phí tháng ${String(thangList[0]).padStart(2,'0')}` : `Công tác phí từ tháng ${tuStr} đến tháng ${denStr} ${noiDungTien}`}</div>
     <div class="giayde-body"><strong>Số tiền thanh toán:</strong> ${tt.toLocaleString('vi-VN')} đồng</div>
     <div class="giayde-body"><strong>Tổng số tiền bằng chữ:</strong> ${cap(toViChu(tt))} đồng.</div>
     <div class="giayde-body" style="font-style:italic">(Chứng từ đính kèm: giấy đi đường)</div>
@@ -1497,7 +1908,7 @@ function renderGiayDe(ten, tt, tu, den, nam, rows, donvi){
       <div>
         <div class="role">Phòng chuyên môn</div>
         <div class="sign">(Ký, họ tên, đóng dấu)</div>
-        <div class="name">Dương Văn Luận</div>
+        <div class="name">${nguoiKyPhongCM}</div>
       </div>
       <div>
         <div class="role">Phụ trách kế toán</div>
@@ -1634,8 +2045,10 @@ function buildBangKeEJ(wb, m, data, nam){
     sc(ws,`B${r}`,c.ten,{sz:12,h:'left',border:brd,wrap:true});
     sc(ws,`C${r}`,c.donvi||'Văn phòng HĐND&UBND',{sz:12,h:'center',border:brd,wrap:true});
     // D-G: tiền các loại (để trống nếu =0, có định dạng số)
-    ['tienVe','tienPT','tienLuuTru','tienPhong'].forEach((k,ci)=>{
-      const val=c[k]||0;
+    // Cột D = Tiền vé + Tiền PT (gộp chung), cột E để trống
+    const veVaPT=(c.tienVe||0)+(c.tienPT||0);
+    ['veVaPT',null,'tienLuuTru','tienPhong'].forEach((k,ci)=>{
+      const val = k==='veVaPT' ? veVaPT : (k ? c[k]||0 : 0);
       const cell=ws.getCell(`${'DEFG'[ci]}${r}`);
       if(val){ cell.value=val; cell.numFmt=NF_VN; }
       applyStyle(cell,{sz:12,h:'center',border:brd});
@@ -1702,17 +2115,17 @@ function buildATMEJ(wb, nvs, dataAll, tu, den, nam){
   nvs.forEach((_,i)=>ws.getRow(8+i).height=27);
   ws.getRow(8+nvs.length).height=21;
 
-  sc(ws,'A1','VĂN PHÒNG HĐND VÀ UBND XÃ VĨNH LỢI',{sz:11,bold:true});
+  sc(ws,'A1','VĂN PHÒNG HĐND VÀ UBND XÃ VĨNH LỢI',{sz:12,bold:true});
   mergeEJ(ws,'A1','K1');
-  sc(ws,'A2','Mã QHNS: 1158035',{sz:11,bold:true,h:'left'}); mergeEJ(ws,'A2','C2');
-  sc(ws,'A4','DANH SÁCH CHUYỂN TIỀN QUA TÀI KHOẢN CÁ NHÂN',{sz:12,bold:true,h:'center',wrap:true});
+  sc(ws,'A2','Mã QHNS: 1158035',{sz:12,bold:true,h:'left'}); mergeEJ(ws,'A2','C2');
+  sc(ws,'A4','DANH SÁCH CHUYỂN TIỀN QUA TÀI KHOẢN CÁ NHÂN',{sz:13,bold:true,h:'center',wrap:true});
   mergeEJ(ws,'A4','K4');
-  sc(ws,'A5',`(Chi công tác phí từ tháng ${String(tu).padStart(2,'0')} đến tháng ${String(den).padStart(2,'0')} năm ${nam})`,{sz:12,bold:true,italic:true,h:'center',wrap:true});
+  sc(ws,'A5',`(Chi công tác phí từ tháng ${String(tu).padStart(2,'0')} đến tháng ${String(den).padStart(2,'0')} năm ${nam})`,{sz:13,bold:true,italic:true,h:'center',wrap:true});
   mergeEJ(ws,'A5','K5');
 
   const atmHdrs=['STT','Họ và tên','Số tài khoản','Tiền vé tàu xe','Tiền thuê phương tiện đi lại','Tiền phụ cấp lưu trú','Tiền phòng nghỉ','Cộng','Trừ phí chuyển ATM','Số tiền còn được nhận','Ghi\n chú'];
   'ABCDEFGHIJK'.split('').forEach((col,i)=>{
-    sc(ws,`${col}7`,atmHdrs[i],{sz:11,bold:true,h:'center',border:BA,wrap:true});
+    sc(ws,`${col}7`,atmHdrs[i],{sz:12,bold:true,h:'center',border:BA,wrap:true});
   });
 
   let tAtmVal=0;
@@ -1725,44 +2138,44 @@ function buildATMEJ(wb, nvs, dataAll, tu, den, nam){
     const lt=rows_nv.reduce((s,c)=>s+(c.tienLuuTru||0),0);
     const ph=rows_nv.reduce((s,c)=>s+(c.tienPhong||0),0);
     const tt=ve+pt+lt+ph; tAtmVal+=tt;
-    sc(ws,`A${r}`,i+1,{sz:11,h:'center',border:BA,wrap:true});
-    sc(ws,`B${r}`,ten,{sz:11,h:'left',border:BA,wrap:true});
-    sc(ws,`C${r}`,ns.stk||'',{sz:11,h:'center',border:BA,wrap:true});
+    sc(ws,`A${r}`,i+1,{sz:12,h:'center',border:BA,wrap:true});
+    sc(ws,`B${r}`,ten,{sz:12,h:'left',border:BA,wrap:true});
+    sc(ws,`C${r}`,ns.stk||'',{sz:12,h:'center',border:BA,wrap:true});
     ['D','E','F','G'].forEach((col,ci)=>{
       const val=[ve,pt,lt,ph][ci];
       const cell=ws.getCell(`${col}${r}`);
       if(val){cell.value=val; cell.numFmt=NF_VN;}
-      applyStyle(cell,{sz:11,h:'center',border:BA});
+      applyStyle(cell,{sz:12,h:'center',border:BA});
     });
     const ch=ws.getCell(`H${r}`); ch.value={formula:`D${r}+E${r}+F${r}+G${r}`};
-    ch.numFmt=NF_PLAIN; applyStyle(ch,{sz:11,h:'right',border:BA});
-    sc(ws,`I${r}`,2200,{sz:11,h:'right',border:BA,numFmt:NF_PLAIN});
+    ch.numFmt=NF_PLAIN; applyStyle(ch,{sz:12,h:'right',border:BA});
+    sc(ws,`I${r}`,2200,{sz:12,h:'right',border:BA,numFmt:NF_PLAIN});
     const cj=ws.getCell(`J${r}`); cj.value={formula:`H${r}-I${r}`};
-    cj.numFmt=NF_PLAIN; applyStyle(cj,{sz:11,h:'right',border:BA});
-    sc(ws,`K${r}`,'',{sz:11,h:'center',border:BA});
+    cj.numFmt=NF_PLAIN; applyStyle(cj,{sz:12,h:'right',border:BA});
+    sc(ws,`K${r}`,'',{sz:12,h:'center',border:BA});
   });
 
   // Tổng cộng
   const rTC=8+nvs.length;
-  sc(ws,`A${rTC}`,'        Tổng Cộng:',{sz:11,bold:true,h:'center',border:BA,wrap:true});
+  sc(ws,`A${rTC}`,'        Tổng Cộng:',{sz:12,bold:true,h:'center',border:BA,wrap:true});
   mergeEJ(ws,`A${rTC}`,`C${rTC}`);
   ['D','E','F','G','H','I','J'].forEach(col=>{
     const cell=ws.getCell(`${col}${rTC}`);
     cell.value={formula:`SUM(${col}8:${col}${rTC-1})`};
-    cell.numFmt=NF_PLAIN; applyStyle(cell,{sz:11,bold:true,h:'right',border:BA});
+    cell.numFmt=NF_PLAIN; applyStyle(cell,{sz:12,bold:true,h:'right',border:BA});
   });
-  sc(ws,`K${rTC}`,'',{sz:11,border:BA});
+  sc(ws,`K${rTC}`,'',{sz:12,border:BA});
 
   // Footer
   const rF=rTC+1;
-  sc(ws,`A${rF}`,`Tổng số tiền (viết bằng chữ): ${cap(toViChu(tAtmVal))} đồng.`,{sz:11,bold:true,italic:true,wrap:false});
+  sc(ws,`A${rF}`,`Tổng số tiền (viết bằng chữ): ${cap(toViChu(tAtmVal))} đồng.`,{sz:12,bold:true,italic:true,wrap:false});
   mergeEJ(ws,`A${rF}`,`K${rF}`);
-  sc(ws,`H${rF+2}`,`Vĩnh Lợi, ngày  ...  tháng  ...  năm ${nam}`,{sz:11,italic:true,h:'center',wrap:true});
+  sc(ws,`H${rF+2}`,`Vĩnh Lợi, ngày  ...  tháng  ...  năm ${nam}`,{sz:12,italic:true,h:'center',wrap:true});
   mergeEJ(ws,`H${rF+2}`,`K${rF+2}`);
-  sc(ws,`A${rF+3}`,'KẾ TOÁN',{sz:11,bold:true,h:'center'}); mergeEJ(ws,`A${rF+3}`,`C${rF+3}`);
-  sc(ws,`H${rF+3}`,'THỦ TRƯỞNG ĐƠN VỊ',{sz:11,bold:true,h:'center'}); mergeEJ(ws,`H${rF+3}`,`K${rF+3}`);
-  sc(ws,`A${rF+10}`,'Nguyễn Thành Lâm',{sz:11,bold:true,h:'center'}); mergeEJ(ws,`A${rF+10}`,`C${rF+10}`);
-  sc(ws,`H${rF+10}`,'Dương Bửu Duy',{sz:11,bold:true,h:'center'}); mergeEJ(ws,`H${rF+10}`,`K${rF+10}`);
+  sc(ws,`A${rF+3}`,'KẾ TOÁN',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`A${rF+3}`,`C${rF+3}`);
+  sc(ws,`H${rF+3}`,'THỦ TRƯỞNG ĐƠN VỊ',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`H${rF+3}`,`K${rF+3}`);
+  sc(ws,`A${rF+10}`,'Nguyễn Thành Lâm',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`A${rF+10}`,`C${rF+10}`);
+  sc(ws,`H${rF+10}`,'Dương Bửu Duy',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`H${rF+10}`,`K${rF+10}`);
   return tAtmVal;
 }
 
@@ -1773,29 +2186,29 @@ function buildMau20EJ(wb, nvs, dataAll, tAtmVal, nam){
     margins:{left:0.7,right:0.7,top:0.75,bottom:0.75}};
   [5.43,21.86,22.86,25.71,17.14].forEach((w,i)=>ws.getColumn(i+1).width=w);
 
-  sc(ws,'A1','Mã số hồ sơ:…(*)……. ',{sz:12,bold:true,h:'center'}); mergeEJ(ws,'A1','D1');
-  sc(ws,'E1','Mẫu số 20',{sz:12,h:'right'});
-  sc(ws,'A3','DANH SÁCH THANH TOÁN CHO ĐỐI TƯỢNG THỤ HƯỞNG',{sz:12,bold:true,h:'center'}); mergeEJ(ws,'A3','E3');
-  sc(ws,'A4',`(Kèm theo Giấy rút dự toán/Ủy nhiệm chi số … ngày … tháng ... năm ${nam}.)`,{sz:12,italic:true,h:'center'}); mergeEJ(ws,'A4','E4');
-  sc(ws,'B5','Tài khoản dự toán: ',{sz:12});
-  sc(ws,'D5','Tài khoản tiền gửi:',{sz:12});
-  sc(ws,'A7','1. Đơn vị giao dịch: Văn phòng HĐND và UBND Xã Vĩnh Lợi',{sz:12,h:'left',wrap:false});
-  sc(ws,'A8','2. Mã số đơn vị có quan hệ với ngân sách: 1158035',{sz:12,h:'left',wrap:false});
-  const c9=ws.getCell('D9'); c9.value='(Đơn vị tính: Đồng)'; c9.font={...TNR,size:12,italic:true};
+  sc(ws,'A1','Mã số hồ sơ:…(*)……. ',{sz:13,bold:true,h:'center'}); mergeEJ(ws,'A1','D1');
+  sc(ws,'E1','Mẫu số 20',{sz:13,h:'right'});
+  sc(ws,'A3','DANH SÁCH THANH TOÁN CHO ĐỐI TƯỢNG THỤ HƯỞNG',{sz:13,bold:true,h:'center'}); mergeEJ(ws,'A3','E3');
+  sc(ws,'A4',`(Kèm theo Giấy rút dự toán/Ủy nhiệm chi số … ngày … tháng ... năm ${nam}.)`,{sz:13,italic:true,h:'center'}); mergeEJ(ws,'A4','E4');
+  sc(ws,'B5','Tài khoản dự toán: ',{sz:13});
+  sc(ws,'D5','Tài khoản tiền gửi:',{sz:13});
+  sc(ws,'A7','1. Đơn vị giao dịch: Văn phòng HĐND và UBND Xã Vĩnh Lợi',{sz:13,h:'left',wrap:false});
+  sc(ws,'A8','2. Mã số đơn vị có quan hệ với ngân sách: 1158035',{sz:13,h:'left',wrap:false});
+  const c9=ws.getCell('D9'); c9.value='(Đơn vị tính: Đồng)'; c9.font={...TNR,size:13,italic:true};
   c9.alignment={horizontal:'right',vertical:'middle'}; c9.border={bottom:THIN_BORDER};
   mergeEJ(ws,'D9','E9');
 
   // Header bảng rows 10-12
-  sc(ws,'A10','STT',{sz:12,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'A10','A11');
-  sc(ws,'B10','Đối tượng thụ hưởng',{sz:12,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'B10','B11');
-  sc(ws,'C10','Tài khoản ngân hàng',{sz:12,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'C10','D10');
-  sc(ws,'E10','Số tiền ',{sz:12,bold:true,h:'center',border:BA,wrap:true,numFmt:NF_DONG}); mergeEJ(ws,'E10','E11');
-  sc(ws,'C11','Số tài khoản đối tượng thụ hưởng',{sz:12,bold:true,h:'center',border:BA,wrap:true});
-  sc(ws,'D11','Tên ngân hàng',{sz:12,bold:true,h:'center',border:BA,wrap:true});
+  sc(ws,'A10','STT',{sz:13,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'A10','A11');
+  sc(ws,'B10','Đối tượng thụ hưởng',{sz:13,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'B10','B11');
+  sc(ws,'C10','Tài khoản ngân hàng',{sz:13,bold:true,h:'center',border:BA,wrap:true}); mergeEJ(ws,'C10','D10');
+  sc(ws,'E10','Số tiền ',{sz:13,bold:true,h:'center',border:BA,wrap:true,numFmt:NF_DONG}); mergeEJ(ws,'E10','E11');
+  sc(ws,'C11','Số tài khoản đối tượng thụ hưởng',{sz:13,bold:true,h:'center',border:BA,wrap:true});
+  sc(ws,'D11','Tên ngân hàng',{sz:13,bold:true,h:'center',border:BA,wrap:true});
   // Row 12: chỉ số
   [['A12','1'],['B12','2'],['C12','3'],['E12','4']].forEach(([addr,val])=>{
     const cell=ws.getCell(addr); cell.value=val;
-    cell.font={...TNR,size:11,italic:true}; cell.alignment={horizontal:'center',vertical:'middle'};
+    cell.font={...TNR,size:12,italic:true}; cell.alignment={horizontal:'center',vertical:'middle'};
     cell.border=BA; cell.numFmt=addr==='E12'?NF_DONG:NF_AT;
   });
   ws.getCell('D12').border=BA;
@@ -1803,18 +2216,18 @@ function buildMau20EJ(wb, nvs, dataAll, tAtmVal, nam){
   // Data rows bắt đầu từ 13
   let row=13;
   // Tổng số
-  sc(ws,`B${row}`,'Tổng số',{sz:12,bold:true,h:'center',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
+  sc(ws,`B${row}`,'Tổng số',{sz:13,bold:true,h:'center',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
   ws.getCell(`A${row}`).border=BA; ws.getCell(`C${row}`).border=BA; ws.getCell(`D${row}`).border=BA;
   const eTong=ws.getCell(`E${row}`); eTong.numFmt=NF_DONG;
-  applyStyle(eTong,{sz:12,bold:true,h:'center',border:BA}); row++;
+  applyStyle(eTong,{sz:13,bold:true,h:'center',border:BA}); row++;
 
   // I. Công chức
   const rowCC=row;
-  sc(ws,`A${row}`,'I.',{sz:12,bold:true,h:'center',border:BA});
-  sc(ws,`B${row}`,'Công chức',{sz:12,bold:true,h:'left',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
+  sc(ws,`A${row}`,'I.',{sz:13,bold:true,h:'center',border:BA});
+  sc(ws,`B${row}`,'Công chức',{sz:13,bold:true,h:'left',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
   ws.getCell(`C${row}`).border=BA; ws.getCell(`D${row}`).border=BA;
   const eCc=ws.getCell(`E${row}`); eCc.numFmt=NF_DONG;
-  applyStyle(eCc,{sz:12,bold:true,h:'center',border:BA}); row++;
+  applyStyle(eCc,{sz:13,bold:true,h:'center',border:BA}); row++;
 
   // Group by đơn vị
   const donviBuckets={};
@@ -1828,22 +2241,22 @@ function buildMau20EJ(wb, nvs, dataAll, tAtmVal, nam){
   const ccRows=[]; // track để điền SUM cho I. và Tổng số
   Object.entries(donviBuckets).forEach(([dv,dvNvs])=>{
     // Dòng đơn vị
-    sc(ws,`B${row}`,dv,{sz:11,bold:true,h:'left',border:{top:THIN_BORDER,left:THIN_BORDER,bottom:THIN_BORDER}});
+    sc(ws,`B${row}`,dv,{sz:12,bold:true,h:'left',border:{top:THIN_BORDER,left:THIN_BORDER,bottom:THIN_BORDER}});
     mergeEJ(ws,`B${row}`,`D${row}`);
     ws.getCell(`A${row}`).border=BA; ws.getCell(`C${row}`).border=BA; ws.getCell(`D${row}`).border=BA;
     const eDv=ws.getCell(`E${row}`); eDv.numFmt=NF_DONG;
-    applyStyle(eDv,{sz:11,bold:true,h:'center',border:BA});
+    applyStyle(eDv,{sz:12,bold:true,h:'center',border:BA});
     const dvRow=row; row++;
     const dvMemberRows=[];
     dvNvs.forEach((ten,i)=>{
       const ns=dsNhanSu.find(n=>n.ten===ten)||{};
       const tt=dataAll.filter(c=>c.ten===ten).reduce((s,c)=>s+c.tong,0);
-      sc(ws,`A${row}`,i+1,{sz:11,h:'center',border:BA,wrap:true});
-      sc(ws,`B${row}`,ten,{sz:11,h:'left',border:BA,wrap:true});
-      sc(ws,`C${row}`,ns.stk||'',{sz:11,h:'center',border:BA,wrap:true});
-      sc(ws,`D${row}`,(ns.nh||' NHNN&PTNT Thạnh Trị'),{sz:11,h:'left',border:BA,wrap:true});
+      sc(ws,`A${row}`,i+1,{sz:12,h:'center',border:BA,wrap:true});
+      sc(ws,`B${row}`,ten,{sz:12,h:'left',border:BA,wrap:true});
+      sc(ws,`C${row}`,ns.stk||'',{sz:12,h:'center',border:BA,wrap:true});
+      sc(ws,`D${row}`,(ns.nh||' NHNN&PTNT Thạnh Trị'),{sz:12,h:'left',border:BA,wrap:true});
       const eVal=ws.getCell(`E${row}`); eVal.value=tt; eVal.numFmt=NF_DONG;
-      applyStyle(eVal,{sz:11,h:'center',border:BA});
+      applyStyle(eVal,{sz:12,h:'center',border:BA});
       dvMemberRows.push(row); ccRows.push(row); row++;
     });
     // SUM cho dòng đơn vị
@@ -1852,45 +2265,50 @@ function buildMau20EJ(wb, nvs, dataAll, tAtmVal, nam){
     }
   });
 
-  // SUM cho I. Công chức và Tổng số
+  // SUM cho I. Công chức và Tổng số sẽ điền sau khi biết vị trí II/III/IV
   if(ccRows.length>0){
     eCc.value={formula:`SUM(E${ccRows[0]}:E${ccRows[ccRows.length-1]})`};
   }
-  eTong.value={formula:`E${rowCC}+E${row}+E${row+1}+E${row+2}`}; // =I.+II.+III.+IV. đúng theo mẫu chuẩn
 
-  // II III IV
+  // II III IV — ghi nhớ vị trí dòng từng mục
+  const rowsIIIIIIIV=[];
   ['II. ','III.','IV.'].forEach((v,idx)=>{
     const labels=['Viên chức ','Lao động hợp đồng ','Đối tượng khác'];
-    sc(ws,`A${row}`,v,{sz:12,bold:true,h:'center',border:BA});
-    sc(ws,`B${row}`,labels[idx],{sz:12,bold:true,h:'left',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
+    rowsIIIIIIIV.push(row);
+    sc(ws,`A${row}`,v,{sz:13,bold:true,h:'center',border:BA});
+    sc(ws,`B${row}`,labels[idx],{sz:13,bold:true,h:'left',border:BA}); mergeEJ(ws,`B${row}`,`D${row}`);
     ws.getCell(`C${row}`).border=BA; ws.getCell(`D${row}`).border=BA;
-    sc(ws,`E${row}`,'',{sz:12,border:BA,numFmt:NF_DONG}); row++;
+    sc(ws,`E${row}`,'',{sz:13,border:BA,numFmt:NF_DONG}); row++;
   });
 
+  // Điền công thức Tổng số ĐÚNG vị trí sau khi đã tạo dòng II III IV
+  const [rII, rIII, rIV]=rowsIIIIIIIV;
+  eTong.value={formula:`E${rowCC}+E${rII}+E${rIII}+E${rIV}`};
+
   // Tổng chữ
-  sc(ws,`A${row}`,`Tổng số tiền (viết bằng chữ): ${cap(toViChu(tAtmVal))} đồng.`,{sz:12,h:'left',wrap:true});
+  sc(ws,`A${row}`,`Tổng số tiền (viết bằng chữ): ${cap(toViChu(tAtmVal))} đồng.`,{sz:13,h:'left',wrap:true});
   mergeEJ(ws,`A${row}`,`E${row}`); row+=2;
-  sc(ws,`D${row}`,`Vĩnh Lợi, ngày …  tháng ... năm ${nam}`,{sz:12,italic:true,h:'center'});
+  sc(ws,`D${row}`,`Vĩnh Lợi, ngày …  tháng ... năm ${nam}`,{sz:13,italic:true,h:'center'});
   mergeEJ(ws,`D${row}`,`E${row}`); row++;
-  sc(ws,`A${row}`,'NGƯỜI LẬP',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
-  sc(ws,`C${row}`,'KẾ TOÁN TRƯỞNG',{sz:12,bold:true,h:'center'});
-  sc(ws,`D${row}`,'THỦ TRƯỞNG ĐƠN VỊ',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`); row++;
-  sc(ws,`A${row}`,'(Ký, ghi họ tên)',{sz:12,italic:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
-  sc(ws,`C${row}`,'(Ký, ghi họ tên)',{sz:12,italic:true,h:'center'});
-  sc(ws,`D${row}`,'(Ký, ghi họ tên và đóng dấu)',{sz:12,italic:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`);
+  sc(ws,`A${row}`,'NGƯỜI LẬP',{sz:13,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
+  sc(ws,`C${row}`,'KẾ TOÁN TRƯỞNG',{sz:13,bold:true,h:'center'});
+  sc(ws,`D${row}`,'THỦ TRƯỞNG ĐƠN VỊ',{sz:13,bold:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`); row++;
+  sc(ws,`A${row}`,'(Ký, ghi họ tên)',{sz:13,italic:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
+  sc(ws,`C${row}`,'(Ký, ghi họ tên)',{sz:13,italic:true,h:'center'});
+  sc(ws,`D${row}`,'(Ký, ghi họ tên và đóng dấu)',{sz:13,italic:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`);
   const rTen=row+6; row=rTen;
-  sc(ws,`A${row}`,'Nguyễn Thành Lâm',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
-  sc(ws,`C${row}`,'Nguyễn Thành Lâm',{sz:12,bold:true,h:'center'});
-  sc(ws,`D${row}`,'Dương Bửu Duy',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`); row+=2;
+  sc(ws,`A${row}`,'Nguyễn Thành Lâm',{sz:13,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
+  sc(ws,`C${row}`,'Nguyễn Thành Lâm',{sz:13,bold:true,h:'center'});
+  sc(ws,`D${row}`,'Dương Bửu Duy',{sz:13,bold:true,h:'center'}); mergeEJ(ws,`D${row}`,`E${row}`); row+=2;
 
   // Kho bạc
-  sc(ws,`A${row}`,'KHO BẠC NHÀ NƯỚC',{sz:12,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`E${row}`); row+=2;
-  sc(ws,`C${row}`,`Vĩnh Lợi, ngày …  tháng … năm ${nam}`,{sz:12,italic:true,h:'center'}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
-  sc(ws,`A${row}`,'NGƯỜI NHẬN HỒ SƠ',{sz:12,bold:true,h:'center',wrap:true}); mergeEJ(ws,`A${row}`,`B${row}`);
-  sc(ws,`C${row}`,'LÃNH ĐẠO KHO BẠC NHÀ NƯỚC KHU VỰC/LÃNH ĐẠO ',{sz:12,bold:true,h:'center',wrap:true}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
-  sc(ws,`A${row}`,'(Ký, ghi họ tên)',{sz:12,italic:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
-  sc(ws,`C${row}`,'PHÒNG THUỘC KHO BẠC NHÀ NƯỚC KHU VỰC ',{sz:12,bold:true,h:'center',wrap:true}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
-  sc(ws,`C${row}`,'(Ký, ghi họ tên và đóng dấu)',{sz:12,italic:true,h:'center'}); mergeEJ(ws,`C${row}`,`E${row}`);
+  sc(ws,`A${row}`,'KHO BẠC NHÀ NƯỚC',{sz:13,bold:true,h:'center'}); mergeEJ(ws,`A${row}`,`E${row}`); row+=2;
+  sc(ws,`C${row}`,`Vĩnh Lợi, ngày …  tháng … năm ${nam}`,{sz:13,italic:true,h:'center'}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
+  sc(ws,`A${row}`,'NGƯỜI NHẬN HỒ SƠ',{sz:13,bold:true,h:'center',wrap:true}); mergeEJ(ws,`A${row}`,`B${row}`);
+  sc(ws,`C${row}`,'LÃNH ĐẠO KHO BẠC NHÀ NƯỚC KHU VỰC/LÃNH ĐẠO ',{sz:13,bold:true,h:'center',wrap:true}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
+  sc(ws,`A${row}`,'(Ký, ghi họ tên)',{sz:13,italic:true,h:'center'}); mergeEJ(ws,`A${row}`,`B${row}`);
+  sc(ws,`C${row}`,'PHÒNG THUỘC KHO BẠC NHÀ NƯỚC KHU VỰC ',{sz:13,bold:true,h:'center',wrap:true}); mergeEJ(ws,`C${row}`,`E${row}`); row++;
+  sc(ws,`C${row}`,'(Ký, ghi họ tên và đóng dấu)',{sz:13,italic:true,h:'center'}); mergeEJ(ws,`C${row}`,`E${row}`);
 }
 
 // ─── XUẤT WORD GIẤY ĐỀ NGHỊ — Pure XML + JSZip ──────
@@ -1956,7 +2374,8 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
     const rows=dataAll.filter(c=>c.ten===ten);
     const tt=rows.reduce((s,c)=>s+c.tong,0);
     const donviRaw=rows[0]?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
-    const donvi=donviRaw==='Trung Tâm PVHCC'?'Trung Tâm Phục vụ Hành chính công':donviRaw;
+    const donvi=donviRaw==='Trung Tâm PVHCC'?'Trung tâm Phục vụ Hành chính công':donviRaw;
+    const nguoiKyPhongCM = getNguoiKyPhongCM(donviRaw, ten);
     const tu2=String(tu).padStart(2,'0'), den2=String(den).padStart(2,'0');
     const fmtMoney=n=>n.toLocaleString('vi-VN');
     // Tổng tiền từng tháng
@@ -1976,7 +2395,7 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
     paras+=makePara([{text:'Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi',font:F,sz:28}],{indent:540,spaceBefore:120});
     paras+=makePara([{text:`Họ và tên người đề nghị thanh toán: ${ten}`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Bộ phận (địa chỉ): ${donvi}`,font:F,sz:28}],{indent:540,spaceBefore:80});
-    paras+=makePara([{text:`Nội dung thanh toán: ${tu2===den2 ? `Công tác phí tháng ${tu2}` : `Công tác phí từ tháng ${tu2} đến tháng ${den2} ${noiDungTien}`}`,font:F,sz:28}],{indent:540,spaceBefore:80});
+    paras+=makePara([{text:`Nội dung thanh toán: ${thangList.length===1 ? `Công tác phí tháng ${String(thangList[0]).padStart(2,'0')}` : `Công tác phí từ tháng ${tu2} đến tháng ${den2} ${noiDungTien}`}`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Số tiền thanh toán: ${fmtMoney(tt)} đồng`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:`Tổng số tiền bằng chữ: ${cap(toViChu(tt))} đồng.`,font:F,sz:28}],{indent:540,spaceBefore:80});
     paras+=makePara([{text:'(Chứng từ đính kèm: giấy đi đường)',font:F,sz:28,italic:true}],{indent:540,spaceBefore:80,spaceAfter:100});
@@ -2010,7 +2429,7 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
       '\t',
       {text:ten,font:F,sz:28,bold:true},
       '\t',
-      {text:'Dương Văn Luận',font:F,sz:27,bold:true},
+      {text:nguoiKyPhongCM,font:F,sz:27,bold:true},
       '\t',
       {text:'Nguyễn Thành Lâm',font:F,sz:27,bold:true},
       '\t',
@@ -2047,6 +2466,96 @@ async function xuatGiayDeWord(nvs, dataAll, tu, den, nam){
   URL.revokeObjectURL(url);
 }
 
+async function xuatGiayDeChungWord(danhSach, nguoiDungTen, tu, den, nam){
+  // danhSach: [{ten, tt, donvi}], theo đúng thứ tự đã tick
+  if(typeof JSZip==='undefined'){alert('JSZip chưa tải, thử lại sau 2 giây.');return;}
+
+  const F='Times New Roman';
+  const TABS_SIGN=[{val:'center',pos:1620},{val:'center',pos:4320},{val:'center',pos:6750},{val:'center',pos:9180}];
+  const fmtMoney=n=>n.toLocaleString('vi-VN');
+  const tu2=String(tu).padStart(2,'0'), den2=String(den).padStart(2,'0');
+
+  const tongTien=danhSach.reduce((s,x)=>s+x.tt,0);
+  const noiDungChiTiet=danhSach.map(x=>`đ/c ${tenChuCuoi(x.ten)} là ${fmtMoney(x.tt)}đ`).join(', ');
+  const dungTenInfo=danhSach.find(x=>x.ten===nguoiDungTen)||danhSach[0];
+  const donviRaw=dungTenInfo?.donvi||'Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi';
+  const donvi=donviRaw==='Trung Tâm PVHCC'?'Trung tâm Phục vụ Hành chính công':donviRaw;
+  const nguoiKyPhongCM=getNguoiKyPhongCMChung(danhSach);
+
+  let paras='';
+  paras+=makePara([{text:'Đơn vị: Văn phòng HĐND và UBND',font:F,sz:28,bold:true}],{indent:540,lineSpacing:240});
+  paras+=makePara([{text:'Mã QHNS: 1158035',font:F,sz:28,bold:true}],{indent:540,lineSpacing:240});
+  paras+=makePara([{text:'Phòng:',font:F,sz:28,bold:true}],{indent:540,lineSpacing:240});
+  paras+=makePara([{text:'GIẤY ĐỀ NGHỊ THANH TOÁN',font:F,sz:28,bold:true}],{align:'center',lineSpacing:240,spaceBefore:100});
+  paras+=makePara([{text:`Ngày       tháng      năm ${nam}`,font:F,sz:28,italic:true}],{align:'center',lineSpacing:240});
+  paras+=makePara([],{lineSpacing:240,spaceBefore:200});
+  paras+=makePara([{text:'Kính gửi: Chánh Văn phòng Hội đồng nhân dân và Ủy ban nhân dân xã Vĩnh Lợi',font:F,sz:28}],{indent:540,spaceBefore:120});
+  paras+=makePara([{text:`Họ và tên người đề nghị thanh toán: ${nguoiDungTen}`,font:F,sz:28}],{indent:540,spaceBefore:80});
+  paras+=makePara([{text:`Bộ phận (địa chỉ): ${donvi}`,font:F,sz:28}],{indent:540,spaceBefore:80});
+  paras+=makePara([{text:`Nội dung thanh toán: Công tác phí từ tháng ${tu2} đến tháng ${den2} (${noiDungChiTiet})`,font:F,sz:28}],{indent:540,spaceBefore:80});
+  paras+=makePara([{text:`Số tiền thanh toán: ${fmtMoney(tongTien)} đồng`,font:F,sz:28}],{indent:540,spaceBefore:80});
+  paras+=makePara([{text:`Tổng số tiền bằng chữ: ${cap(toViChu(tongTien))} đồng.`,font:F,sz:28}],{indent:540,spaceBefore:80});
+  paras+=makePara([{text:'(Chứng từ đính kèm: giấy đi đường)',font:F,sz:28,italic:true}],{indent:540,spaceBefore:80,spaceAfter:100});
+  paras+=makePara([
+    {text:'Người đề nghị thanh toán ',font:F,sz:27,bold:true},
+    '\t',
+    {text:'Phòng chuyên môn ',font:F,sz:27,bold:true},
+    '\t',
+    {text:'Phụ trách kế toán ',font:F,sz:27,bold:true},
+    '\t',
+    {text:'Chánh văn phòng',font:F,sz:27,bold:true},
+  ],{spaceBefore:240,tabs:TABS_SIGN});
+  paras+=makePara([
+    '\t',
+    {text:'(Ký, họ tên)',font:F,sz:27,italic:true},
+    '\t',
+    {text:'(Ký, họ tên, đóng dấu)',font:F,sz:27,italic:true},
+    '\t',
+    {text:'(Ký, họ tên)',font:F,sz:27,italic:true},
+    '\t',
+    {text:'(Ký, họ tên, đóng dấu)',font:F,sz:27,italic:true},
+  ],{tabs:TABS_SIGN});
+  paras+=makePara([],{});
+  paras+=makePara([],{});
+  paras+=makePara([],{});
+  paras+=makePara([
+    '\t',
+    {text:nguoiDungTen,font:F,sz:28,bold:true},
+    '\t',
+    {text:nguoiKyPhongCM,font:F,sz:27,bold:true},
+    '\t',
+    {text:'Nguyễn Thành Lâm',font:F,sz:27,bold:true},
+    '\t',
+    {text:'Dương Bửu Duy',font:F,sz:27,bold:true},
+  ],{tabs:TABS_SIGN});
+
+  const docXml = makeDocxXml([paras]);
+
+  const zip = new JSZip();
+  zip.file('word/document.xml', docXml);
+  zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`);
+  zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+  zip.file('word/_rels/document.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`);
+
+  const blob = await zip.generateAsync({type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url;
+  a.download=`GiayDeNghiChung_CTP_T${String(tu).padStart(2,'0')}-T${String(den).padStart(2,'0')}_${nam}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ─── HÀM CHÍNH ───────────────────────────────────────
 async function xuatBaoCao(){
   const tu=parseInt(document.getElementById('rpt-tu').value);
@@ -2054,7 +2563,30 @@ async function xuatBaoCao(){
   const nam=parseInt(document.getElementById('rpt-nam').value);
   const loai=document.querySelector('input[name="rpt-loai"]:checked').value;
   const msg=document.getElementById('rpt-msg');
-  const dataAll=dsChuyen.filter(c=>c.thang>=tu&&c.thang<=den&&c.nam===nam);
+
+  if(loai==='giaydechung'){
+    if(chungNvSelected.length===0){
+      msg.innerHTML='<span class="msg-err">Vui lòng chọn ít nhất 1 nhân viên để cộng chung vào giấy đề nghị.</span>';
+      return;
+    }
+    if(!chungNvNguoiDungTen){
+      msg.innerHTML='<span class="msg-err">Vui lòng chọn người đứng tên "Người đề nghị thanh toán".</span>';
+      return;
+    }
+    msg.innerHTML='<span style="color:var(--gray-500)">Đang tạo file Word...</span>';
+    const dataChung=getFilteredData();
+    const danhSach=chungNvSelected.map(ten=>{
+      const rows=dataChung.filter(c=>c.ten===ten);
+      return {ten, tt:rows.reduce((s,c)=>s+c.tong,0), donvi:rows[0]?.donvi||''};
+    });
+    try{
+      await xuatGiayDeChungWord(danhSach, chungNvNguoiDungTen, tu, den, nam);
+      msg.innerHTML=`<span class="msg-ok">✓ Đã xuất Word: GiayDeNghiChung_CTP_T${String(tu).padStart(2,'0')}-T${String(den).padStart(2,'0')}_${nam}.docx</span>`;
+    }catch(e){msg.innerHTML=`<span class="msg-err">Lỗi: ${e.message}</span>`;}
+    setTimeout(()=>msg.innerHTML='',8000); return;
+  }
+
+  const dataAll=getFilteredData();
   if(dataAll.length===0){msg.innerHTML='<span class="msg-err">Không có dữ liệu trong kỳ đã chọn!</span>';return;}
 
   if(loai==='giayde'){
@@ -2103,6 +2635,8 @@ renderNS();
 renderDiem();
 updateFilters();
 renderList();
+renderRptThangChips();
+renderRptChuyenList();
 </script>
 </div><!-- /app-wrapper -->
 
